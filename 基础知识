@@ -1,0 +1,75 @@
+名词解释
+更新时间：2020-11-12 10:51
+
+我的收藏
+本文主要对消息队列RocketMQ版涉及的专有名词及术语进行定义和解析，方便您更好地理解相关概念并使用消息队列RocketMQ版。
+
+Topic
+消息主题，一级消息类型，通过Topic对消息进行分类。更多信息，请参见Topic与Tag最佳实践。
+消息（Message）
+消息队列中信息传递的载体。
+Message ID
+消息的全局唯一标识，由消息队列RocketMQ版系统自动生成，唯一标识某条消息。
+Message Key
+消息的业务标识，由消息生产者（Producer）设置，唯一标识某个业务逻辑。
+Tag
+消息标签，二级消息类型，用来进一步区分某个Topic下的消息分类。更多信息，请参见Topic与Tag最佳实践。
+Producer
+消息生产者，也称为消息发布者，负责生产并发送消息。
+Producer实例
+Producer的一个对象实例，不同的Producer实例可以运行在不同进程内或者不同机器上。Producer实例线程安全，可在同一进程内多线程之间共享。
+Consumer
+消息消费者，也称为消息订阅者，负责接收并消费消息。可分为两类：
+Push Consumer：消息由消息队列RocketMQ版推送至Consumer。
+Pull Consumer：该类Consumer主动从消息队列RocketMQ版拉取消息。目前仅TCP Java SDK支持该类Consumer。
+注意 如需使用Pull Consumer，请确保您的消息队列RocketMQ版实例为企业铂金版。
+更多信息，请参见接口和参数说明和订阅消息。
+
+分区
+即Topic Partition，物理上的概念。每个Topic包含一个或多个分区。
+消费位点
+每个Topic会有多个分区，每个分区会统计当前消息的总条数，这个称为最大位点MaxOffset；分区的起始位置对应的位置叫做起始位点MinOffset。
+消息队列RocketMQ版的Pull Consumer会按顺序依次消费分区内的每条消息，记录已经消费了的消息条数，称为消费位点ConsumerOffset。剩余的未消费的条数（也称为消息堆积量）= 最大位点MaxOffset-消费位点ConsumerOffset。
+
+Consumer实例
+Consumer的一个对象实例，不同的Consumer实例可以运行在不同进程内或者不同机器上。一个Consumer实例内配置线程池消费消息。
+Group
+一类Producer或Consumer，这类Producer或Consumer通常生产或消费同一类消息，且消息发布或订阅的逻辑一致。
+
+Group ID
+Group的标识。
+队列
+每个Topic下会由一到多个队列来存储消息。每个Topic对应队列数与消息类型以及实例所处地域（Region）相关，具体的队列数可提交工单咨询。
+注意 标准版实例不支持变更队列数，铂金版实例支持变更队列数。
+Exactly-Once投递语义
+Exactly-Once投递语义是指发送到消息系统的消息只能被Consumer处理且仅处理一次，即使Producer重试消息发送导致某消息重复投递，该消息在Consumer也只被消费一次。更多信息，请参见Exactly-Once投递语义。
+集群消费
+一个Group ID所标识的所有Consumer平均分摊消费消息。例如某个Topic有9条消息，一个Group ID有3个Consumer实例，那么在集群消费模式下每个实例平均分摊，只消费其中的3条消息。更多信息，请参见集群消费和广播消费。
+广播消费
+一个Group ID所标识的所有Consumer都会各自消费某条消息一次。例如某个Topic有9条消息，一个Group ID有3个Consumer实例，那么在广播消费模式下每个实例都会各自消费9条消息。更多信息，请参见集群消费和广播消费。
+定时消息
+Producer将消息发送到消息队列RocketMQ版服务端，但并不期望这条消息立马投递，而是推迟到在当前时间点之后的某一个时间投递到Consumer进行消费，该消息即定时消息。更多信息，请参见定时和延时消息。
+延时消息
+Producer将消息发送到消息队列RocketMQ版服务端，但并不期望这条消息立马投递，而是延迟一定时间后才投递到Consumer进行消费，该消息即延时消息。更多信息，请参见定时和延时消息。
+事务消息
+消息队列RocketMQ版提供类似X/Open XA的分布事务功能，通过消息队列RocketMQ版的事务消息能达到分布式事务的最终一致。更多信息，请参见事务消息。
+顺序消息
+消息队列RocketMQ版提供的一种按照顺序进行发布和消费的消息类型，分为全局顺序消息和分区顺序消息。更多信息，请参见顺序消息。
+全局顺序消息
+对于指定的一个Topic，所有消息按照严格的先入先出（FIFO）的顺序进行发布和消费。更多信息，请参见顺序消息。
+分区顺序消息
+对于指定的一个Topic，所有消息根据Sharding Key进行区块分区。同一个分区内的消息按照严格的FIFO顺序进行发布和消费。Sharding Key是顺序消息中用来区分不同分区的关键字段，和普通消息的Message Key是完全不同的概念。更多信息，请参见顺序消息。
+消息堆积
+Producer已经将消息发送到消息队列RocketMQ版的服务端，但由于Consumer消费能力有限，未能在短时间内将所有消息正确消费掉，此时在消息队列RocketMQ版的服务端保存着未被消费的消息，该状态即消息堆积。
+消息过滤
+Consumer可以根据消息标签（Tag）对消息进行过滤，确保Consumer最终只接收被过滤后的消息类型。消息过滤在消息队列RocketMQ版的服务端完成。更多信息，请参见消息过滤。
+消息轨迹
+在一条消息从Producer发出到Consumer消费处理过程中，由各个相关节点的时间、地点等数据汇聚而成的完整链路信息。通过消息轨迹，您能清晰定位消息从Producer发出，经由消息队列RocketMQ版服务端，投递给Consumer的完整链路，方便定位排查问题。更多信息，请参见查询消息轨迹。
+重置消费位点
+以时间轴为坐标，在消息持久化存储的时间范围内（默认3天），重新设置Consumer对已订阅的Topic的消费进度，设置完成后Consumer将接收设定时间点之后由Producer发送到消息队列RocketMQ版服务端的消息。更多信息，请参见重置消费位点。
+死信队列
+死信队列用于处理无法被正常消费的消息。当一条消息初次消费失败，消息队列RocketMQ版会自动进行消息重试；达到最大重试次数后，若消费依然失败，则表明Consumer在正常情况下无法正确地消费该消息。此时，消息队列RocketMQ版不会立刻将消息丢弃，而是将这条消息发送到该Consumer对应的特殊队列中。
+
+消息队列RocketMQ版将这种正常情况下无法被消费的消息称为死信消息（Dead-Letter Message），将存储死信消息的特殊队列称为死信队列（Dead-Letter Queue）。
+
+更多信息，请参见死信队列。
